@@ -2866,27 +2866,8 @@ var RSAKey = /** @class */ (function () {
             return "0" + h;
         }
     };
-    RSAKey.prototype.decryptLong = function (text) {
-        var _this = this;
-        var maxLength = (this.n.bitLength() + 7) >> 3;
-        text = b64tohex(text);
-        try {
-            if (text.length > maxLength) {
-                var ct_2 = "";
-                var lt = text.match(/.{1,256}/g); // 128位解密。取256位
-                lt.forEach(function (entry) {
-                    var t1 = _this.decrypt(entry);
-                    ct_2 += t1;
-                });
-                return ct_2;
-            }
-            var y = this.decrypt(text);
-            return y;
-        }
-        catch (ex) {
-            return false;
-        }
-    };
+   
+    
     // RSAKey.prototype.setPrivate = RSASetPrivate;
     // Set the private key fields N, e, and d from hex strings
     RSAKey.prototype.setPrivate = function (N, E, D) {
@@ -5155,6 +5136,31 @@ var JSEncrypt = /** @class */ (function () {
             return this.getKey().decrypt(b64tohex(str));
         }
         catch (ex) {
+            return false;
+        }
+    };
+    /**
+   *  Long text decryption 
+   * @param {string} string  Encrypted base64 code 
+   * @returns {string}  The original text after decryption 
+   * */
+    JSEncrypt.prototype.decryptLong = function (string) {
+        var k = this.getKey();
+        var maxLength = 128;
+        try {
+            var string = b64tohex(string);
+            var ct = "";
+            if (string.length > maxLength * 2) {
+                var lt = string.match(/.{1,256}/g);  //128 Bit decryption . take 256 position 
+                lt.forEach(function (entry) {
+                    var t1 = k.decrypt(entry);
+                    ct += t1;
+                });
+                return ct;
+            }
+            var y = k.decrypt(string);
+            return y;
+        } catch (ex) {
             return false;
         }
     };
